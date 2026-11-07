@@ -107,3 +107,21 @@ Name of the Secret holding the generated admin password
 {{- define "node64.adminSecretName" -}}
 {{- printf "%s-admin" (include "node64.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
+
+{{/*
+Validated custom root CA (PEM), empty if not set
+*/}}
+{{- define "node64.customRootCA" -}}
+{{- $pem := .Values.customRootCA | default "" | toString | trim }}
+{{- if and $pem (not (contains "-----BEGIN CERTIFICATE-----" $pem)) }}
+{{- fail "customRootCA must contain PEM encoded certificates (-----BEGIN CERTIFICATE-----)" }}
+{{- end }}
+{{- $pem }}
+{{- end }}
+
+{{/*
+Name of the ConfigMap holding the custom root CA
+*/}}
+{{- define "node64.customRootCAName" -}}
+{{- printf "%s-ca" (include "node64.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}

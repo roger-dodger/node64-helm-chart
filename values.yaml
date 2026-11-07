@@ -34,6 +34,16 @@ generateRandomPassword: false
 # Enable it when node64 runs behind an ingress controller such as Traefik.
 trustProxy: false
 
+# PEM encoded custom root CA certificate(s), e.g. for an internal PKI. If set, it is stored in the
+# ConfigMap <fullname>-ca, mounted at /etc/ssl/custom-certs and SSL_CERT_DIR points there. node64 then
+# trusts these CAs in addition to the ones in /etc/ssl/certs/ca-certificates.crt of the image.
+# Several certificates can be concatenated.
+customRootCA: ""
+# customRootCA: |
+#   -----BEGIN CERTIFICATE-----
+#   ...
+#   -----END CERTIFICATE-----
+
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
 # This is to override the chart name.

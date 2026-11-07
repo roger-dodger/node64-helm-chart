@@ -1,3 +1,4 @@
+{{- $customCA := include "node64.customRootCA" . }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -14,9 +15,15 @@ spec:
       {{- include "node64.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
+      {{- if or .Values.podAnnotations $customCA }}
       annotations:
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if $customCA }}
+        # Restart the pod when the custom root CA changes, Go only loads the CAs once.
+        checksum/custom-ca: {{ $customCA | sha256sum }}
+        {{- end }}
       {{- end }}
       labels:
         {{- include "node64.labels" . | nindent 8 }}
@@ -59,6 +66,10 @@ spec:
             {{- end }}
             - name: NODE64_TRUST_PROXY
               value: {{ include "node64.trustProxy" . | quote }}
+            {{- if $customCA }}
+            - name: SSL_CERT_DIR
+              value: /etc/ssl/custom-certs
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -78,14 +89,24 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
+            {{- if $customCA }}
+            - name: custom-ca
+              mountPath: /etc/ssl/custom-certs
+              readOnly: true
+            {{- end }}
             {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-      {{- if or (not .Values.persistence.enabled) .Values.volumes }}
+      {{- if or (not .Values.persistence.enabled) .Values.volumes $customCA }}
       volumes:
         {{- if not .Values.persistence.enabled }}
         - name: data
           emptyDir: {}
+        {{- end }}
+        {{- if $customCA }}
+        - name: custom-ca
+          configMap:
+            name: {{ include "node64.customRootCAName" . }}
         {{- end }}
         {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}

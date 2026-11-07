@@ -100,6 +100,7 @@ The most relevant values are listed below. See [`values.yaml`](values.yaml) for 
 | `adminUser` | Admin user name (`NODE64_ADMIN_USER`). Only used on the first start, when `/data` is initialised | `admin` |
 | `generateRandomPassword` | Generate a random 24 character admin password (`NODE64_ADMIN_PASSWORD`). The admin variables are only set if this is `true` and `adminUser` is not empty. See [Admin password](#admin-password) | `false` |
 | `trustProxy` | Trust `X-Forwarded-*` headers from a reverse proxy (`NODE64_TRUST_PROXY`): `true` or `false` | `false` |
+| `customRootCA` | PEM encoded custom root CA certificate(s) to trust in addition to the image's CAs. See [Custom root CA](#custom-root-ca) | `""` |
 | `replicaCount` | Number of pods | `1` |
 | `persistence.enabled` | Use a PersistentVolumeClaim for `/data`. If `false`, an `emptyDir` is used and data is lost when the pod is recreated | `true` |
 | `persistence.storageClass` | StorageClass for the volume (empty uses the cluster default) | `""` |
@@ -143,6 +144,26 @@ keeps the Secret (like the `/data` volume).
 >     syncOptions:
 >       - RespectIgnoreDifferences=true
 > ```
+
+## Custom root CA
+
+To let node64 trust TLS certificates of an internal PKI, set `customRootCA` to the PEM encoded CA
+certificate(s):
+
+```yaml
+customRootCA: |
+  -----BEGIN CERTIFICATE-----
+  ...
+  -----END CERTIFICATE-----
+```
+
+or pass a file with `--set-file customRootCA=my-ca.pem`.
+
+The node64 image is built `FROM scratch` and has no shell, so `/etc/ssl/certs/ca-certificates.crt`
+cannot be extended in the container. Instead, the chart stores the certificates in the ConfigMap
+`<release>-node64-ca`, mounts it at `/etc/ssl/custom-certs` and sets `SSL_CERT_DIR` to that
+directory. node64 (a Go binary) then trusts these CAs in addition to the ones in the image's bundle.
+The pod is restarted automatically when the CA changes.
 
 ## Persistence
 
