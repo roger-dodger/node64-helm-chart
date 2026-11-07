@@ -1,0 +1,36 @@
+name: Release chart
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+
+      - name: Check tag matches chart version
+        run: |
+          chart_version=$(yq '.version' Chart.yaml)
+          if [ "v${chart_version}" != "${GITHUB_REF_NAME}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match Chart.yaml version ${chart_version}" >&2
+            exit 1
+          fi
+
+      - name: Lint
+        run: helm lint .
+
+      - name: Package
+        run: helm package .
+
+      - name: Push to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
+          helm push node64-*.tgz oci://ghcr.io/roger-dodger/charts

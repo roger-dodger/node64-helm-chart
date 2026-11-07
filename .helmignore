@@ -21,3 +21,7 @@
 .idea/
 *.tmproj
 .vscode/
+# Repository files that don't belong in the chart package
+.github/
+# Environment-specific values
+values.*.yaml

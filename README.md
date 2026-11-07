@@ -21,15 +21,63 @@ An **unofficial** Helm chart for deploying [Node64](https://node64.de) on Kubern
 
 ## Installation
 
+The chart is published as an OCI artifact on GitHub Container Registry:
+
 ```sh
-git clone https://github.com/roger-dodger/node64-helm-chart.git node64
-helm install node64 ./node64 --namespace node64 --create-namespace
+helm install node64 oci://ghcr.io/roger-dodger/charts/node64 --version 1.1.0 \
+  --namespace node64 --create-namespace
 ```
 
 To override values, pass `--set key=value` or your own values file:
 
 ```sh
-helm install node64 ./node64 -f my-values.yaml
+helm install node64 oci://ghcr.io/roger-dodger/charts/node64 --version 1.1.0 -f my-values.yaml
+```
+
+To install from source instead:
+
+```sh
+git clone https://github.com/roger-dodger/node64-helm-chart.git node64
+helm install node64 ./node64 --namespace node64 --create-namespace
+```
+
+### Argo CD
+
+Register `ghcr.io/roger-dodger/charts` as a repository of type **Helm** with **Enable OCI** checked,
+then reference the chart in an Application:
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: node64
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: ghcr.io/roger-dodger/charts
+    chart: node64
+    targetRevision: 1.1.0
+    helm:
+      valuesObject:
+        persistence:
+          size: 1Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: node64
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+```
+
+## Releasing
+
+Pushing a tag `v<version>` runs [`.github/workflows/release.yaml`](.github/workflows/release.yaml),
+which lints, packages and pushes the chart to `oci://ghcr.io/roger-dodger/charts`. The tag must match
+`version` in `Chart.yaml`, so bump it before tagging:
+
+```sh
+git tag v1.1.0 && git push origin v1.1.0
 ```
 
 ## Configuration

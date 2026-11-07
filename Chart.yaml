@@ -1,9 +1,14 @@
 apiVersion: v2
 name: node64
-description: A Helm chart for Node64
+description: Unofficial Helm chart for Node64 (node64.de)
 home: https://github.com/roger-dodger/node64-helm-chart
 sources:
   - https://github.com/roger-dodger/node64-helm-chart
+maintainers:
+  - name: Roger Blum
+    url: https://github.com/roger-dodger
+keywords:
+  - node64
 
 # A chart can be either an 'application' or a 'library' chart.
 #
