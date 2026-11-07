@@ -48,9 +48,14 @@ spec:
               value: {{ include "node64.logLevel" . | quote }}
             - name: NODE64_LOG_FORMAT
               value: {{ include "node64.logFormat" . | quote }}
-            {{- with .Values.adminUser }}
+            {{- if include "node64.generateAdminPassword" . }}
             - name: NODE64_ADMIN_USER
-              value: {{ . | quote }}
+              value: {{ .Values.adminUser | quote }}
+            - name: NODE64_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "node64.adminSecretName" . }}
+                  key: password
             {{- end }}
             - name: NODE64_TRUST_PROXY
               value: {{ include "node64.trustProxy" . | quote }}

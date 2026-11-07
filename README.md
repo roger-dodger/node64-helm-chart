@@ -98,6 +98,7 @@ The most relevant values are listed below. See [`values.yaml`](values.yaml) for 
 | `logLevel` | Log level (`NODE64_LOG_LEVEL`): `debug`, `info`, `warn` or `error` | `info` |
 | `logFormat` | Log format (`NODE64_LOG_FORMAT`): `text` or `json` | `text` |
 | `adminUser` | Admin user name (`NODE64_ADMIN_USER`). Only used on the first start, when `/data` is initialised | `admin` |
+| `generateRandomPassword` | Generate a random 24 character admin password (`NODE64_ADMIN_PASSWORD`). The admin variables are only set if this is `true` and `adminUser` is not empty. See [Admin password](#admin-password) | `false` |
 | `trustProxy` | Trust `X-Forwarded-*` headers from a reverse proxy (`NODE64_TRUST_PROXY`): `true` or `false` | `false` |
 | `replicaCount` | Number of pods | `1` |
 | `persistence.enabled` | Use a PersistentVolumeClaim for `/data`. If `false`, an `emptyDir` is used and data is lost when the pod is recreated | `true` |
@@ -109,6 +110,39 @@ The most relevant values are listed below. See [`values.yaml`](values.yaml) for 
 | `ingress.enabled` | Create an Ingress | `false` |
 | `httpRoute.enabled` | Create a Gateway API HTTPRoute | `false` |
 | `resources` | CPU/memory requests and limits | `{}` |
+
+## Admin password
+
+With `generateRandomPassword: true` (and a non-empty `adminUser`), the chart generates a random
+24 character password and stores it in the Secret `<release>-node64-admin`. It is passed to node64 as
+`NODE64_ADMIN_USER` / `NODE64_ADMIN_PASSWORD` and, like the admin user, only used on the first start.
+
+Read it with:
+
+```sh
+kubectl get secret <release>-node64-admin -n <namespace> -o jsonpath='{.data.password}' | base64 -d
+```
+
+The Secret is created once: on `helm upgrade` the existing password is reused, and `helm uninstall`
+keeps the Secret (like the `/data` volume).
+
+> [!IMPORTANT]
+> Reusing the password relies on Helm's `lookup` function, which is not available in
+> `helm template` or **Argo CD**. There, a new password is rendered on every refresh, and syncing
+> would overwrite the Secret, so it no longer matches the password node64 was initialised with.
+> In Argo CD, ignore the Secret's data after it has been created:
+>
+> ```yaml
+> spec:
+>   ignoreDifferences:
+>     - kind: Secret
+>       name: node64-admin
+>       jsonPointers:
+>         - /data
+>   syncPolicy:
+>     syncOptions:
+>       - RespectIgnoreDifferences=true
+> ```
 
 ## Persistence
 

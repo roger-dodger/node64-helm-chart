@@ -21,8 +21,14 @@ logFormat: text
 
 # Name of the admin user, passed as NODE64_ADMIN_USER.
 # Only used during the first start of the application, when it initialises /data. Changing it later
-# has no effect on an existing installation. Leave empty to not set the variable.
+# has no effect on an existing installation.
 adminUser: admin
+
+# Generate a random 24 character admin password, stored in the Secret <fullname>-admin and passed as
+# NODE64_ADMIN_PASSWORD. NODE64_ADMIN_USER and NODE64_ADMIN_PASSWORD are only set if this is true and
+# adminUser is not empty. Like adminUser, the password is only used during the first start.
+# The Secret is created once and kept on upgrades and on helm uninstall.
+generateRandomPassword: false
 
 # Trust X-Forwarded-* headers from a reverse proxy, passed as NODE64_TRUST_PROXY. One of: true, false.
 # Enable it when node64 runs behind an ingress controller such as Traefik.

@@ -93,3 +93,17 @@ Validated boolean for NODE64_TRUST_PROXY
 {{- end }}
 {{- $value }}
 {{- end }}
+
+{{/*
+Returns "true" if the admin user and a random admin password should be set, empty otherwise
+*/}}
+{{- define "node64.generateAdminPassword" -}}
+{{- if and .Values.adminUser (eq (toString .Values.generateRandomPassword) "true") }}true{{- end }}
+{{- end }}
+
+{{/*
+Name of the Secret holding the generated admin password
+*/}}
+{{- define "node64.adminSecretName" -}}
+{{- printf "%s-admin" (include "node64.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}

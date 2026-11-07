@@ -33,3 +33,8 @@
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
 {{- end }}
+{{- if include "node64.generateAdminPassword" . }}
+
+2. Get the generated password of the admin user "{{ .Values.adminUser }}":
+  kubectl get secret --namespace {{ .Release.Namespace }} {{ include "node64.adminSecretName" . }} -o jsonpath="{.data.password}" | base64 -d
+{{- end }}
