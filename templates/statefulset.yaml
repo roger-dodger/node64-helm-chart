@@ -41,6 +41,19 @@ spec:
           {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: NODE64_HTTP_PORT
+              value: {{ .Values.service.port | quote }}
+            - name: NODE64_LOG_LEVEL
+              value: {{ include "node64.logLevel" . | quote }}
+            - name: NODE64_LOG_FORMAT
+              value: {{ include "node64.logFormat" . | quote }}
+            {{- with .Values.adminUser }}
+            - name: NODE64_ADMIN_USER
+              value: {{ . | quote }}
+            {{- end }}
+            - name: NODE64_TRUST_PROXY
+              value: {{ include "node64.trustProxy" . | quote }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

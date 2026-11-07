@@ -60,3 +60,36 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Validated log level for NODE64_LOG_LEVEL
+*/}}
+{{- define "node64.logLevel" -}}
+{{- $levels := list "debug" "info" "warn" "error" }}
+{{- if not (has .Values.logLevel $levels) }}
+{{- fail (printf "logLevel must be one of %s, got %q" (join ", " $levels) (toString .Values.logLevel)) }}
+{{- end }}
+{{- .Values.logLevel }}
+{{- end }}
+
+{{/*
+Validated log format for NODE64_LOG_FORMAT
+*/}}
+{{- define "node64.logFormat" -}}
+{{- $formats := list "text" "json" }}
+{{- if not (has .Values.logFormat $formats) }}
+{{- fail (printf "logFormat must be one of %s, got %q" (join ", " $formats) (toString .Values.logFormat)) }}
+{{- end }}
+{{- .Values.logFormat }}
+{{- end }}
+
+{{/*
+Validated boolean for NODE64_TRUST_PROXY
+*/}}
+{{- define "node64.trustProxy" -}}
+{{- $value := toString .Values.trustProxy }}
+{{- if not (has $value (list "true" "false")) }}
+{{- fail (printf "trustProxy must be true or false, got %q" $value) }}
+{{- end }}
+{{- $value }}
+{{- end }}

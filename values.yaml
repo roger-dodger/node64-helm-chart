@@ -13,6 +13,21 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+# Log level of node64, passed as NODE64_LOG_LEVEL. One of: debug, info, warn, error.
+logLevel: info
+
+# Log format of node64, passed as NODE64_LOG_FORMAT. One of: text, json.
+logFormat: text
+
+# Name of the admin user, passed as NODE64_ADMIN_USER.
+# Only used during the first start of the application, when it initialises /data. Changing it later
+# has no effect on an existing installation. Leave empty to not set the variable.
+adminUser: admin
+
+# Trust X-Forwarded-* headers from a reverse proxy, passed as NODE64_TRUST_PROXY. One of: true, false.
+# Enable it when node64 runs behind an ingress controller such as Traefik.
+trustProxy: false
+
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
 # This is to override the chart name.

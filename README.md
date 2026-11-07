@@ -7,6 +7,12 @@ An **unofficial** Helm chart for deploying [Node64](https://node64.de) on Kubern
 > the developers of Node64. **Use it at your own risk.** For questions about Node64 itself, refer to
 > [node64.de](https://node64.de).
 
+## Supported modules
+
+So far this chart only supports the **Healthchecks** module of Node64, and probably the
+**Proxmox VE** module. The other modules are either not supported on Kubernetes or would require
+exposing additional ports via a Gateway API `TCPRoute`, which this chart does not provide yet.
+
 ## What it deploys
 
 - A **StatefulSet** running the `ghcr.io/ipv64net/node64` container image
@@ -89,6 +95,10 @@ The most relevant values are listed below. See [`values.yaml`](values.yaml) for 
 | `image.repository` | Container image | `ghcr.io/ipv64net/node64` |
 | `image.tag` | Image tag (defaults to the chart `appVersion`) | `""` |
 | `image.pullPolicy` | Image pull policy | `Always` |
+| `logLevel` | Log level (`NODE64_LOG_LEVEL`): `debug`, `info`, `warn` or `error` | `info` |
+| `logFormat` | Log format (`NODE64_LOG_FORMAT`): `text` or `json` | `text` |
+| `adminUser` | Admin user name (`NODE64_ADMIN_USER`). Only used on the first start, when `/data` is initialised | `admin` |
+| `trustProxy` | Trust `X-Forwarded-*` headers from a reverse proxy (`NODE64_TRUST_PROXY`): `true` or `false` | `false` |
 | `replicaCount` | Number of pods | `1` |
 | `persistence.enabled` | Use a PersistentVolumeClaim for `/data`. If `false`, an `emptyDir` is used and data is lost when the pod is recreated | `true` |
 | `persistence.storageClass` | StorageClass for the volume (empty uses the cluster default) | `""` |
