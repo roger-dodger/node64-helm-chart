@@ -2,7 +2,6 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,visualstudiocode,helm
 
 ### Custom ###
-values.prod.yaml
 
 ### Helm ###
 # Chart dependencies
